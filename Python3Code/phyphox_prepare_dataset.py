@@ -6,6 +6,7 @@
 #    Chapter 2                                               #
 #                                                            #
 ##############################################################
+from pprint import pprint
 
 # Import the relevant classes.
 from Chapter2.CreateDataset import CreateDataset
@@ -17,11 +18,9 @@ import os
 import sys
 
 # Chapter 2: Initial exploration of the dataset.
-_USER_FOLDER = "alex-test-dataset"
+_USER_FOLDER = "marie-dataset"
 # User folder have multiple experiments
 # Each experiment have multiple files (Accelerometer.csv, Gyroscope.csv, etc)
-
-_EXPERIMENT_NAME = 'Walking 2030'
 
 USER_PATH = Path(f'./datasets/phyphox/{_USER_FOLDER}')
 
@@ -58,6 +57,16 @@ for experiment_name in experiment_names:
         else:
             print(f"Skipping {file_name}")
 
+
+pprint(timestamped_datasets)
+# timestamped_datasets ={
+#     "walking 2023.csv:Accelerator.csv": dataset
+#     "running 2023.csv:Accelerator.csv": dataset
+#     "cycling 2023.csv:Accelerator.csv": dataset,
+#     "walking 2023.csv:Gyposcope.csv": dataset,
+# }
+
+exit(0)
 ####################################################################
 #Data Aggregation
 
@@ -104,11 +113,6 @@ for measurment in measurements:
     # writer.close()
 
     # print(f'{measurement} data has been saved to {measurement_file}.')
-
-print(timestamped_datasets)
-timestamped_datasets ={
-    "walking 2023.csv:Accelerator.csv":dataset
-}
 
 exit(0)
 
