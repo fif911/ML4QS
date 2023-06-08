@@ -26,7 +26,7 @@ class CreateDataset:
         self.granularity = granularity
 
     @staticmethod
-    def prepare_dataset(dataset_root, file_name: str):
+    def prepare_dataset(dataset_root, file_name: str, timestamp_offset: datetime):
         """Rename columns and normalize timestamps"""
         if file_name == "Accelerometer.csv":
             naming_mapping = {
@@ -42,7 +42,7 @@ class CreateDataset:
         dataset = pd.read_csv(dataset_root / file_name, skipinitialspace=True)
 
         # Normalize timestamps
-        dataset["timestamps"] = dataset["Time (s)"].apply(lambda x: datetime.fromtimestamp(x))
+        dataset["timestamps"] = dataset["Time (s)"].apply(lambda x: timedelta(seconds=x) + timestamp_offset)
 
         dataset.rename(columns=naming_mapping, inplace=True)
         return dataset
