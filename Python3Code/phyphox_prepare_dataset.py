@@ -70,6 +70,13 @@ exit(0)
 ####################################################################
 #Data Aggregation
 
+# print(timestamped_datasets)
+#Dictionary keys - the files of the datasets
+files = timestamped_datasets.keys()
+
+print(files[0])
+exit(0)
+
 # Define the activities and measurements
 activities = ['walking', 'running', 'cycling', 'sitting', 'hammocking']
 measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
