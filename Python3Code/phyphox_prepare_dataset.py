@@ -58,7 +58,60 @@ for experiment_name in experiment_names:
         else:
             print(f"Skipping {file_name}")
 
+####################################################################
+#Data Aggregation
+
+# Define the activities and measurements
+activities = ['walking', 'running', 'cycling', 'sitting', 'hammocking']
+measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
+
+# Iterate over each measurement
+for measurment in measurements:
+
+    # Create a dictionary to store the data for each activity
+    activity_data = {}
+
+    # Iterate over each activity
+    for activity in activities:
+        # Create an empty DataFrame to store the combined data for the activity
+        # combined_data = pd.DataFrame()
+
+        print(measurment, ' ', activity)
+        # # Iterate over each Excel file
+        # for file in excel_files:
+        #     # Check if the file contains the current measurement and activity
+        #     if measurement in file and activity in file:
+        #         # Read the Excel file into a DataFrame
+        #         file_path = os.path.join(directory, file)
+        #         df = pd.read_excel(file_path)
+
+        #         # Append the data to the combined DataFrame
+        #         combined_data = combined_data.append(df)
+
+        # Store the combined data for the activity in the dictionary
+    #     activity_data[activity] = combined_data
+
+    # # Create a new Excel file for each measurement
+    # measurement_file = f'{measurement}_data.xlsx'
+    # writer = pd.ExcelWriter(measurement_file, engine='xlsxwriter')
+
+    # # Write each activity's data to a separate sheet in the Excel file
+    # for activity, data in activity_data.items():
+    #     data.to_excel(writer, sheet_name=activity, index=False)
+
+    # # Save and close the Excel file
+    # writer.save()
+    # writer.close()
+
+    # print(f'{measurement} data has been saved to {measurement_file}.')
+
+print(timestamped_datasets)
+timestamped_datasets ={
+    "walking 2023.csv:Accelerator.csv":dataset
+}
+
 exit(0)
+
 for milliseconds_per_instance in GRANULARITIES:
     print(f'Creating numerical datasets from files in {DATASET_PATH} using granularity {milliseconds_per_instance}.')
 
