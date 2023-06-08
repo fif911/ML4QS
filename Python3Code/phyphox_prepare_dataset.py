@@ -33,7 +33,7 @@ GRANULARITIES = [60000, 250]
 
 print('Please wait, this will take a while to run!')
 
-datasets = []
+timestamped_datasets = []
 
 print("Preparing datasets...")
 print("Renaming columns and normalizing timestamps... (if not done yet)")
@@ -45,7 +45,7 @@ for file_name in os.listdir(DATASET_PATH):
     if file_name == "Accelerometer.csv":
         print(f"Preparing {file_name}")
         dataset = CreateDataset.prepare_dataset(DATASET_PATH, file_name, timestamp_offset)
-        datasets.append(dataset)
+        timestamped_datasets.append(dataset)
     else:
         print(f"Skipping {file_name}")
 

@@ -46,7 +46,6 @@ class CreateDataset:
 
         # dataset.rename(columns=naming_mapping, inplace=True)
         return dataset
-        pass
 
     @staticmethod
     def get_timestamp_offset(dataset_root):
