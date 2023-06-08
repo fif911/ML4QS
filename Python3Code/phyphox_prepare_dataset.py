@@ -17,38 +17,46 @@ import os
 import sys
 
 # Chapter 2: Initial exploration of the dataset.
-_DATASET = "alex-test-dataset"
-_EXPERIMENT_NAME = 'test-walk'
+_USER_FOLDER = "alex-test-dataset"
+# User folder have multiple experiments
+# Each experiment have multiple files (Accelerometer.csv, Gyroscope.csv, etc)
 
-DATASET_PATH = Path(f'./datasets/phyphox/{_DATASET}/{_EXPERIMENT_NAME}/')
+_EXPERIMENT_NAME = 'Walking 2030'
+
+USER_PATH = Path(f'./datasets/phyphox/{_USER_FOLDER}')
+
 RESULT_PATH = Path('./phyphox-outputs/')
-RESULT_FNAME = f'{_DATASET}_{_EXPERIMENT_NAME}.csv'
+RESULT_FNAME = f'{_USER_FOLDER}_AGGREGATED_BY_TYPE.csv' # TODO: Add type
+
 
 # Set a granularity (the discrete step size of our time series data). We'll use a course-grained granularity of one
 # instance per minute, and a fine-grained one with four instances per second.
 GRANULARITIES = [60000, 250]
 
 # We can call Path.mkdir(exist_ok=True) to make any required directories if they don't already exist.
-[path.mkdir(exist_ok=True, parents=True) for path in [DATASET_PATH, RESULT_PATH]]
+[path.mkdir(exist_ok=True, parents=True) for path in [RESULT_PATH]]
 
 print('Please wait, this will take a while to run!')
 
-timestamped_datasets = []
+timestamped_datasets = {}
 
 print("Preparing datasets...")
-print("Renaming columns and normalizing timestamps... (if not done yet)")
-for file_name in os.listdir(DATASET_PATH):
-    # get timestamp offset from meta/time.csv
-    timestamp_offset = CreateDataset.get_timestamp_offset(DATASET_PATH)
 
-    # if file_name.endswith("Accelerometer.csv"):
-    if file_name == "Accelerometer.csv":
-        print(f"Preparing {file_name}")
-        dataset = CreateDataset.prepare_dataset(DATASET_PATH, file_name, timestamp_offset)
-        timestamped_datasets.append(dataset)
-    else:
-        print(f"Skipping {file_name}")
+experiment_names = [f for f in os.listdir(USER_PATH) if os.path.isdir(USER_PATH / f)]
 
+for experiment_name in experiment_names:
+
+    for file_name in os.listdir(USER_PATH / experiment_name):
+        # get timestamp offset from meta/time.csv
+        timestamp_offset = CreateDataset.get_timestamp_offset(USER_PATH / experiment_name)
+
+        # Ignore meta files
+        if file_name not in ["meta","device.csv","time.csv"]:
+            print(f"Preparing {file_name}")
+            dataset = CreateDataset.prepare_dataset(USER_PATH / experiment_name / file_name, timestamp_offset)
+            timestamped_datasets[f"{experiment_name}:{file_name}"] = dataset
+        else:
+            print(f"Skipping {file_name}")
 
 exit(0)
 for milliseconds_per_instance in GRANULARITIES:
