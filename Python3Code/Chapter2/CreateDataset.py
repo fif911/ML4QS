@@ -28,15 +28,15 @@ class CreateDataset:
     @staticmethod
     def prepare_dataset(dataset_root, file_name: str, timestamp_offset: datetime):
         """Rename columns and normalize timestamps"""
-        if file_name == "Accelerometer.csv":
-            naming_mapping = {
-                # "Time (s)": "timestamp",
-                "X (m/s^2)": "x",
-                "Y (m/s^2)": "y",
-                "Z (m/s^2)": "z"
-            }
-        else:
-            raise ValueError(f"Unknown file name {file_name}")
+        # if file_name == "Accelerometer.csv":
+        #     naming_mapping = {
+        #         # "Time (s)": "timestamp",
+        #         "X (m/s^2)": "x",
+        #         "Y (m/s^2)": "y",
+        #         "Z (m/s^2)": "z"
+        #     }
+        # else:
+        #     raise ValueError(f"Unknown file name {file_name}")
 
         # rename columns
         dataset = pd.read_csv(dataset_root / file_name, skipinitialspace=True)
@@ -44,7 +44,7 @@ class CreateDataset:
         # Normalize timestamps
         dataset["timestamps"] = dataset["Time (s)"].apply(lambda x: timedelta(seconds=x) + timestamp_offset)
 
-        dataset.rename(columns=naming_mapping, inplace=True)
+        # dataset.rename(columns=naming_mapping, inplace=True)
         return dataset
         pass
 

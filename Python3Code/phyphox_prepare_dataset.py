@@ -42,7 +42,7 @@ for file_name in os.listdir(DATASET_PATH):
     timestamp_offset = CreateDataset.get_timestamp_offset(DATASET_PATH)
 
     # if file_name.endswith("Accelerometer.csv"):
-    if file_name== "Accelerometer.csv":
+    if file_name == "Accelerometer.csv":
         print(f"Preparing {file_name}")
         dataset = CreateDataset.prepare_dataset(DATASET_PATH, file_name, timestamp_offset)
         datasets.append(dataset)
