@@ -19,7 +19,7 @@ timestamped_datasets = {}
 
 print("Preparing datasets...")
 
-experiment_names = [f for f in os.listdir(USER_PATH) if os.path.isdir(USER_PATH / f)]
+experiment_names = [str(f) for f in os.listdir(USER_PATH) if os.path.isdir(USER_PATH / f)]
 
 for experiment_name in experiment_names:
 
