@@ -9,11 +9,6 @@ _USER_FOLDER = "marie-dataset"
 USER_PATH = Path(f'./datasets/phyphox/{_USER_FOLDER}')
 
 RESULT_PATH = Path('./phyphox-outputs/')
-RESULT_FNAME = f'{_USER_FOLDER}_AGGREGATED_BY_TYPE.csv'  # TODO: Add type
-
-# Set a granularity (the discrete step size of our time series data). We'll use a course-grained granularity of one
-# instance per minute, and a fine-grained one with four instances per second.
-GRANULARITIES = [60000, 250]
 
 # We can call Path.mkdir(exist_ok=True) to make any required directories if they don't already exist.
 [path.mkdir(exist_ok=True, parents=True) for path in [RESULT_PATH]]
