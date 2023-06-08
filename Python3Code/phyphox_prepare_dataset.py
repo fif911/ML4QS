@@ -1,29 +1,11 @@
-##############################################################
-#                                                            #
-#    Mark Hoogendoorn and Burkhardt Funk (2017)              #
-#    Machine Learning for the Quantified Self                #
-#    Springer                                                #
-#    Chapter 2                                               #
-#                                                            #
-##############################################################
-from pprint import pprint
-
-# Import the relevant classes.
-from Chapter2.CreateDataset import CreateDataset
-from util.VisualizeDataset import VisualizeDataset
-from util import util
-from pathlib import Path
-import copy
 import os
-import sys
+from pathlib import Path
+
 import pandas as pd
 
-# Chapter 2: Initial exploration of the dataset.
-# _USER_FOLDER = "marie-dataset"
-_USER_FOLDER = "marie-dataset"
-# User folder have multiple experiments
-# Each experiment have multiple files (Accelerometer.csv, Gyroscope.csv, etc)
+from Chapter2.CreateDataset import CreateDataset
 
+_USER_FOLDER = "marie-dataset"
 USER_PATH = Path(f'./datasets/phyphox/{_USER_FOLDER}')
 
 RESULT_PATH = Path('./phyphox-outputs/')
@@ -58,14 +40,6 @@ for experiment_name in experiment_names:
         else:
             print(f"Skipping {file_name}")
 
-# pprint(timestamped_datasets)
-# timestamped_datasets ={
-#     "walking 2023.csv:Accelerator.csv": dataset
-#     "running 2023.csv:Accelerator.csv": dataset
-#     "cycling 2023.csv:Accelerator.csv": dataset,
-#     "walking 2023.csv:Gyposcope.csv": dataset,
-# }
-
 ####################################################################
 # Data Aggregation
 
@@ -93,11 +67,6 @@ for measurement in measurements:
         for file in timestamped_datasets:
             print(file)
 
-            # if measurement in file and activity in file:
-            #     # Read the Excel file into a DataFrame
-            #     file_path = os.path.join(directory, file)
-            #     df = pd.read_excel(file_path)
-
             # Check if the file contains the current measurement and activity
             if measurement in file and activity in file:
                 print('True')
@@ -108,14 +77,14 @@ for measurement in measurements:
 
                 combined_data = combined_data.append(data)
 
-        # print("combined data\n")
-        # print(combined_data)
         combined_measurement = combined_measurement.append(combined_data)
 
     print("combined measurement\n")
     print(combined_measurement)
-    # measurement_data[measurement] = combined_measurement
+
+    # Possible measurements:
     # ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
+
     if (measurement == 'Accelerometer'):
         combined_measurement = combined_measurement.rename(
             columns={'Acceleration x (m/s^2)': 'x', 'Acceleration y (m/s^2)': 'y', 'Acceleration z (m/s^2)': 'z'})
@@ -139,9 +108,6 @@ for measurement in measurements:
             inplace=True)
     else:
         pass
-
-    print("combined measurement\n")
-    print(combined_measurement)
 
     combined_measurement = combined_measurement.sort_values(by='timestamps')
 
