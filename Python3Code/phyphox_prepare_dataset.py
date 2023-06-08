@@ -66,7 +66,6 @@ pprint(timestamped_datasets)
 #     "walking 2023.csv:Gyposcope.csv": dataset,
 # }
 
-exit(0)
 ####################################################################
 #Data Aggregation
 
