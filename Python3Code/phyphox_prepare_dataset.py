@@ -72,10 +72,8 @@ for experiment_name in experiment_names:
 #Data Aggregation
 
 # Define the activities and measurements
-activities = ['walking', 'running']
-# , 'cycling', 'sitting', 'hammocking']
-measurements = ['Accelerometer']
-                #, 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
+activities = ['walking', 'running', 'cycling', 'sitting', 'hammocking']
+measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
 
 # Iterate over each measurement
 for measurement in measurements:
