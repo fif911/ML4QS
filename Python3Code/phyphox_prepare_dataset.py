@@ -61,13 +61,6 @@ for experiment_name in experiment_names:
 ####################################################################
 #Data Aggregation
 
-# print(timestamped_datasets)
-#Dictionary keys - the files of the datasets
-files = timestamped_datasets.keys()
-
-print(files[0])
-exit(0)
-
 # Define the activities and measurements
 activities = ['walking', 'running', 'cycling', 'sitting', 'hammocking']
 measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
@@ -83,7 +76,14 @@ for measurment in measurements:
         # Create an empty DataFrame to store the combined data for the activity
         # combined_data = pd.DataFrame()
 
-        print(measurment, ' ', activity)
+        # print(measurment, ' ', activity)
+
+        # Iterate over each file in the dictionary
+        for file in files:
+            print(file)
+
+
+
         # # Iterate over each Excel file
         # for file in excel_files:
         #     # Check if the file contains the current measurement and activity
