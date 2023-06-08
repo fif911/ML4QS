@@ -74,14 +74,15 @@ for experiment_name in experiment_names:
 # Define the activities and measurements
 activities = ['walking', 'running']
 # , 'cycling', 'sitting', 'hammocking']
-measurements = ['Accelerometer', 'Gyroscope']
-                # 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
+measurements = ['Accelerometer']
+                #, 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
 
 # Iterate over each measurement
 for measurement in measurements:
 
-    # Create a dictionary to store the data for each activity
-    activity_data = {}
+    # Create a dictionary to store the data for each measurement
+    measurement_data = {}
+    combined_measurement = pd.DataFrame()
 
     print('\n') 
 
@@ -106,11 +107,42 @@ for measurement in measurements:
                 print('True')
                 #Get the data from the dictionary 
                 data = timestamped_datasets[file]
-                print(data)
+                data.insert(len(data.columns), 'label', len(data.index)*[activity], True)
+                # print(data)
                 
-            #     #Append the data
-            #     combined_data = combined_data.append(data)
-            #     print(combined_data)
+                combined_data = combined_data.append(data)
+
+        # print("combined data\n")
+        # print(combined_data)
+        combined_measurement = combined_measurement.append(combined_data)
+    
+    print("combined measurement\n")
+    print(combined_measurement)
+    # measurement_data[measurement] = combined_measurement
+    # ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
+    if (measurement == 'Accelerometer'):
+        combined_measurement = combined_measurement.rename(columns={'Acceleration x (m/s^2)': 'x', 'Acceleration y (m/s^2)': 'y', 'Acceleration z (m/s^2)': 'z'})
+    elif (measurement == 'Gyroscope'):
+        combined_measurement.rename(columns={'Gyroscope x (rad/s)': 'x', 'Gyroscope y (rad/s)': 'y', 'Gyroscope z (rad/s)': 'z'}, inplace=True)
+    elif (measurement == 'Light'):
+        combined_measurement.rename(columns={'Illuminance (lx)': 'lux'}, inplace=True)
+    elif (measurement == 'Linear Acceleration'):
+        combined_measurement.rename(columns={'Linear Acceleration x (m/s^2)': 'x', 'Linear Acceleration y (m/s^2)': 'y', 'Linear Acceleration z (m/s^2)': 'z'}, inplace=True)
+    elif (measurement == 'Location'):
+        combined_measurement.rename(columns={'Latitude (Â°)': 'latitude', 'Longitude (Â°)': 'longitude', 'Velocity (m/s)': 'speed', 'Height (m)': 'height', 'Direction (Â°)': 'direction', 'Horizontal Accuracy (m)': 'horizontal_accuracy', 'Vertical Accuracy (m)': 'vertical_accuracy'}, inplace=True)
+    elif (measurement == 'Magnetometer'):
+        combined_measurement.rename(columns={'Magnetic field x (ÂµT)': 'x', 'Magnetic field y (ÂµT)': 'y', 'Magnetic field z (ÂµT)': 'z'}, inplace=True)
+    else:
+        pass
+
+    print("combined measurement\n")
+    print(combined_measurement)
+
+
+    combined_measurement = combined_measurement.sort_values(by='timestamps')
+
+    RESULT_FNAME = f'{measurement}.cvs'
+    combined_measurement.to_csv(RESULT_PATH / RESULT_FNAME)
 
         # Store the combined data for the activity in the dictionary
         # activity_data[activity] = combined_data
@@ -131,7 +163,7 @@ for measurement in measurements:
         #         combined_data = combined_data.append(df)
 
         # Store the combined data for the activity in the dictionary
-    #     activity_data[activity] = combined_data
+        # activity_data[activity] = combined_data
 
     # # Create a new Excel file for each measurement
     # measurement_file = f'{measurement}_data.xlsx'
