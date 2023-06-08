@@ -25,6 +25,38 @@ class CreateDataset:
         self.base_dir = base_dir
         self.granularity = granularity
 
+    @staticmethod
+    def prepare_dataset(dataset_root, file_name: str):
+        """Rename columns and normalize timestamps"""
+        if file_name == "Accelerometer.csv":
+            naming_mapping = {
+                # "Time (s)": "timestamp",
+                "X (m/s^2)": "x",
+                "Y (m/s^2)": "y",
+                "Z (m/s^2)": "z"
+            }
+        else:
+            raise ValueError(f"Unknown file name {file_name}")
+
+        # rename columns
+        dataset = pd.read_csv(dataset_root / file_name, skipinitialspace=True)
+
+        # Normalize timestamps
+        dataset["timestamps"] = dataset["Time (s)"].apply(lambda x: datetime.fromtimestamp(x))
+
+        dataset.rename(columns=naming_mapping, inplace=True)
+        return dataset
+        pass
+
+    @staticmethod
+    def get_timestamp_offset(dataset_root):
+        """Get timestamp offset from meta/time.csv"""
+        dataset = pd.read_csv(dataset_root / "meta/time.csv", skipinitialspace=True)
+        systemtime: float = dataset['system time'][0] # float64
+        # float to datetime object
+        timestamp_offset = datetime.fromtimestamp(systemtime)
+        return timestamp_offset
+
     # Create an initial data table with entries from start till end time, with steps
     # of size granularity. Granularity is specified in milliseconds
     def create_timestamps(self, start_time, end_time):
@@ -112,7 +144,7 @@ class CreateDataset:
             # get the right rows from our data table
             relevant_rows = self.data_table[
                 (start <= (self.data_table.index + timedelta(milliseconds=self.granularity))) & (
-                            end > self.data_table.index)]
+                        end > self.data_table.index)]
 
             # and add 1 to the rows if we take the sum
             if aggregation == 'sum':
