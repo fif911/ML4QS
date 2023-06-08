@@ -16,8 +16,10 @@ from pathlib import Path
 import copy
 import os
 import sys
+import pandas as pd
 
 # Chapter 2: Initial exploration of the dataset.
+# _USER_FOLDER = "marie-dataset"
 _USER_FOLDER = "marie-dataset"
 # User folder have multiple experiments
 # Each experiment have multiple files (Accelerometer.csv, Gyroscope.csv, etc)
@@ -58,7 +60,7 @@ for experiment_name in experiment_names:
             print(f"Skipping {file_name}")
 
 
-pprint(timestamped_datasets)
+# pprint(timestamped_datasets)
 # timestamped_datasets ={
 #     "walking 2023.csv:Accelerator.csv": dataset
 #     "running 2023.csv:Accelerator.csv": dataset
@@ -70,26 +72,51 @@ pprint(timestamped_datasets)
 #Data Aggregation
 
 # Define the activities and measurements
-activities = ['walking', 'running', 'cycling', 'sitting', 'hammocking']
-measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
+activities = ['walking', 'running']
+# , 'cycling', 'sitting', 'hammocking']
+measurements = ['Accelerometer', 'Gyroscope']
+                # 'Light', 'Linear Acceleration', 'Location', 'Magnetometer', 'Proximity']
 
 # Iterate over each measurement
-for measurment in measurements:
+for measurement in measurements:
 
     # Create a dictionary to store the data for each activity
     activity_data = {}
 
+    print('\n') 
+
     # Iterate over each activity
     for activity in activities:
         # Create an empty DataFrame to store the combined data for the activity
-        # combined_data = pd.DataFrame()
+        combined_data = pd.DataFrame()
 
-        # print(measurment, ' ', activity)
+        print(measurement, ' ', activity)
 
         # Iterate over each file in the dictionary
-        for file in files:
+        for file in timestamped_datasets:
             print(file)
+            
+            # if measurement in file and activity in file:
+            #     # Read the Excel file into a DataFrame
+            #     file_path = os.path.join(directory, file)
+            #     df = pd.read_excel(file_path)
 
+            # Check if the file contains the current measurement and activity
+            if measurement in file and activity in file:
+                print('True')
+                #Get the data from the dictionary 
+                data = timestamped_datasets[file]
+                print(data)
+                
+            #     #Append the data
+            #     combined_data = combined_data.append(data)
+            #     print(combined_data)
+
+        # Store the combined data for the activity in the dictionary
+        # activity_data[activity] = combined_data
+
+        
+       
 
 
         # # Iterate over each Excel file
