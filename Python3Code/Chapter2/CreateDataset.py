@@ -108,46 +108,15 @@ class CreateDataset:
             for col in value_cols:
                 # Take the average value
                 if len(relevant_rows) > 0:
-                    if aggregation == 'avg':
-                        self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = np.average(
+                    if col == 'label':
+                        self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = relevant_rows[col].iloc[
+                            0]
+                    else:
+                        if aggregation == 'avg':
+                            self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = np.average(
                                 relevant_rows[col])
-                    else:
-                        raise ValueError(f"Unknown aggregation {aggregation}")
-                else:
-                    self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = np.nan
-
-    def add_numerical_dataset_return(self, file, timestamp_col, value_cols, aggregation='avg', prefix=''):
-        print(f'Reading data from {file}')
-        dataset = pd.read_csv(self.base_dir / file, skipinitialspace=True)
-
-        # Convert timestamps to dates
-        dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
-
-        # Create a table based on the times found in the dataset
-        if self.data_table is None:
-            self.create_dataset(min(dataset[timestamp_col]), max(dataset[timestamp_col]), value_cols, prefix)
-        else:
-            for col in value_cols:
-                self.data_table[str(prefix) + str(col)] = np.nan
-
-        # Over all rows in the new table
-        for i in range(0, len(self.data_table.index)):
-            # Select the relevant measurements.
-            relevant_rows = dataset[
-                (dataset[timestamp_col] >= self.data_table.index[i]) &
-                (dataset[timestamp_col] < (self.data_table.index[i] +
-                                           timedelta(milliseconds=self.granularity)))
-                ]
-            if i % 1000 == 0:
-                print(f'Processing row {i} of {len(self.data_table.index)}')
-            for col in value_cols:
-                # Take the average value
-                if len(relevant_rows) > 0:
-                    if aggregation == 'avg':
-                        self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = np.average(
-                            relevant_rows[col])
-                    else:
-                        raise ValueError(f"Unknown aggregation {aggregation}")
+                        else:
+                            raise ValueError(f"Unknown aggregation {aggregation}")
                 else:
                     self.data_table.loc[self.data_table.index[i], str(prefix) + str(col)] = np.nan
 
