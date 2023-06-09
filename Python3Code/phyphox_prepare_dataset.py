@@ -135,8 +135,7 @@ for measurement in measurements:
 
     print("combined measurement\n")
     print(combined_measurement)
-
-
+    
     combined_measurement = combined_measurement.sort_values(by='timestamps')
 
     RESULT_FNAME = f'{measurement}.cvs'
