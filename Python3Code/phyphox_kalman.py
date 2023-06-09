@@ -26,6 +26,13 @@ DataViz.plot_dataset(dataset,
                      )
 
 
+newAcc_x = kf.apply_kalman_filter(dataset, 'acc_x')
+
+DataViz.plot_dataset(newAcc_x, ['acc_x_kalman'], ['exact'], ['line'])
+
+
+
+
 
 # acc_x = kf.apply_kalman_filter(dataset, 'acc_x')
 
