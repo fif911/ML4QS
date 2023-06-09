@@ -12,35 +12,34 @@ kf = KalmanFilters()
 
 #Get the data 
 dataset = pd.read_csv("./phyphox-outputs/chapter2_result_250.csv", skipinitialspace=True)
-
-print(dataset)
-#filteredDataset = []
-
+kfDataset = pd.DataFrame()
+# print(dataset)
 # Plot the data
-DataViz = VisualizeDataset(__file__)
+# DataViz = VisualizeDataset(__file__)
 
-DataViz.plot_dataset(dataset,
-                     ['acc_x'],
-                     ['exact'],
-                     ['line']
-                     )
+measurements = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'light_lux', 'lin_acc_x', 'lin_acc_y', 'lin_acc_z', 'loc_Latitude (°)', 'loc_Longitude (°)', 'loc_height', 'loc_speed',
+                'loc_Direction (°)', 'loc_horizontal_accuracy', 'loc_vertical_accuracy', 'mang_Magnetic field x (µT)', 'mang_Magnetic field y (µT)', 'mang_Magnetic field z (µT)']
 
+for measurement in measurements:
+    # perform the Kalman Filter on the dataset
+    kfDataset = kf.apply_kalman_filter(dataset, measurement)
+    #Drop the initial measurement column
+    kfDataset = kfDataset.drop([measurement], axis = 1)
+    print(kfDataset)
 
-newAcc_x = kf.apply_kalman_filter(dataset, 'acc_x')
-
-DataViz.plot_dataset(newAcc_x, ['acc_x_kalman'], ['exact'], ['line'])
-
-
-
-
-
-# acc_x = kf.apply_kalman_filter(dataset, 'acc_x')
+RESULT_PATH = Path('./phyphox-outputs/')
+RESULT_FNAME = f'kalman_filter_dataset.cvs'
+kfDataset.to_csv(RESULT_PATH / RESULT_FNAME)
 
 
 
-measurements = ['Accelerometer', 'Gyroscope', 'Light', 'Linear Acceleration', 'Location', 'Magnetometer']
 
-measurement = 'Accelerometer'
+
+
+
+
+
+
 
 # if (measurement == 'Accelerometer'):
 #     # combined_measurement = combined_measurement.rename(columns={'Acceleration x (m/s^2)': 'x', 'Acceleration y (m/s^2)': 'y', 'Acceleration z (m/s^2)': 'z'})
