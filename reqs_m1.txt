@@ -1,0 +1,34 @@
+Bottleneck @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_07078715-3ab7-4562-8d3d-d56b0eaa0f7dp504n_ny/croots/recipe/bottleneck_1657175566567/work
+contourpy==1.0.7
+cycler==0.11.0
+Cython==0.29.35
+fonttools==4.39.4
+future==0.18.3
+gensim==3.8.1
+importlib-resources==5.12.0
+inspyred==1.0.1
+joblib==0.14.1
+kiwisolver==1.4.4
+matplotlib==3.7.1
+nltk==3.4.5
+numexpr @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_76yyu1p9jk/croot/numexpr_1683221830860/work
+numpy @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_f9f5xs2fx0/croot/numpy_and_numpy_base_1682520577456/work
+packaging==23.1
+pandas==2.0.2
+patsy==0.5.3
+Pillow==9.5.0
+pyclust==0.2.0
+pykalman==0.9.5
+pyparsing==3.0.9
+python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
+pytz==2023.3
+scikit-learn==0.22.2.post1
+scipy==1.10.1
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+sklearn==0.0
+smart-open==6.3.0
+statsmodels==0.14.0
+treelib==1.6.1
+tzdata==2023.3
+Unidecode==1.1.1
+zipp==3.15.0
