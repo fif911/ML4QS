@@ -32,3 +32,27 @@ treelib==1.6.1
 tzdata==2023.3
 Unidecode==1.1.1
 zipp==3.15.0
+
+Alternative reqs:
+"""
+matplotlib==3.3.2
+
+numpy==1.22.3
+pandas==1.0.3
+scipy==1.5.2
+
+
+gensim==3.8.1
+inspyred==1.0.1
+joblib==0.14.1
+nltk==3.4.5
+
+pyclust==0.2.0
+pykalman==0.9.5
+scikit-learn==0.22.2.post1
+sklearn==0.0
+statsmodels==0.11.1
+treelib==1.6.1
+Unidecode==1.1.1
+Cython
+"""
