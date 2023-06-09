@@ -1,3 +1,5 @@
+"""Script to bundle multiple datasets into a single dataset and add labels based on experiment name."""
+
 import os
 from pathlib import Path
 
