@@ -1,4 +1,4 @@
-from Python3Code.util.VisualizeDataset import VisualizeDataset
+from util.VisualizeDataset import VisualizeDataset
 
 # raad dataset from /Users/zakotianskyi/PycharmProjects/ML4QS/Python3Code
 import pandas as pd
