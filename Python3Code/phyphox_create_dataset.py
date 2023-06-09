@@ -12,7 +12,6 @@ from util.VisualizeDataset import VisualizeDataset
 
 DATASET_PATH = Path('./datasets/phyphox/prepared-marie')
 RESULT_PATH = Path('./phyphox-outputs/')
-RESULT_FNAME = 'chapter2_result.csv'
 
 # Set a granularity (the discrete step size of our time series data). We'll use a course-grained granularity of one
 # instance per minute, and a fine-grained one with four instances per second.
@@ -40,10 +39,9 @@ for milliseconds_per_instance in GRANULARITIES:
     # p_gyr = Process(target=dataset.add_numerical_dataset,
     #                 args=('Gyroscope.cvs', 'timestamps', ['x', 'y', 'z'], 'avg', 'gyr_',))
 
-    dataset.add_numerical_dataset('Accelerometer.cvs', 'timestamps', ['x', 'y', 'z'], 'avg', 'acc_')
+    dataset.add_numerical_dataset('Accelerometer.cvs', 'timestamps', ['x', 'y', 'z', 'label'], 'avg', 'acc_')
     dataset.add_numerical_dataset('Gyroscope.cvs', 'timestamps', ['x', 'y', 'z'], 'avg', 'gyr_')
 
-    dataset.add_numerical_dataset('Light.cvs', 'timestamps', ['lux'], 'avg', 'light_')
     dataset.add_numerical_dataset('Linear Acceleration.cvs', 'timestamps', ['x', 'y', 'z'], 'avg',
                                   'lin_acc_')
     dataset.add_numerical_dataset('Location.cvs', 'timestamps',
@@ -73,7 +71,8 @@ for milliseconds_per_instance in GRANULARITIES:
     # datasets.append(copy.deepcopy(dataset))
 
     # If needed, we could save the various versions of the dataset we create in the loop with logical filenames:
-    dataset.to_csv(RESULT_PATH / f'chapter2_result_{milliseconds_per_instance}')
+    dataset.to_csv(RESULT_PATH / f'chapter2_result_{milliseconds_per_instance}_labeled.csv')
+    print(f"Saved to csv as {RESULT_PATH}/chapter2_result_{milliseconds_per_instance}_labeled.csv")
 
 # Make a table like the one shown in the book, comparing the two datasets produced.
 # util.print_latex_table_statistics_two_datasets(datasets[0], datasets[1])
