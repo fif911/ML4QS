@@ -12,8 +12,10 @@ import math
 from sklearn.mixture import GaussianMixture
 import numpy as np
 import pandas as pd
-import util.util as util
 import copy
+
+from Python3Code.util import util
+
 
 # Class for outlier detection algorithms based on some distribution of the data. They
 # all consider only single points per row (i.e. one column).
@@ -53,12 +55,12 @@ class DistributionBasedOutlierDetection:
 
     # Fits a mixture model towards the data expressed in col and adds a column with the probability
     # of observing the value given the mixture model.
-    def mixture_model(self, data_table, col):
+    def mixture_model(self, data_table, col, n_components=3):
 
         print('Applying mixture models')
         # Fit a mixture model to our data.
         data = data_table[data_table[col].notnull()][col]
-        g = GaussianMixture(n_components=3, max_iter=100, n_init=1)
+        g = GaussianMixture(n_components=n_components, max_iter=100, n_init=1)
         reshaped_data = np.array(data.values.reshape(-1, 1))
         g.fit(reshaped_data)
 
@@ -133,7 +135,7 @@ class DistanceBasedOutlierDetection:
         outlier_factor = []
         # Compute the outlier score per row.
         for i in range(0, len(new_data_table.index)):
-            if i % 100 == 0: print(f'Completed {i} steps for LOF.')
+            if i % 100 == 0: print(f'Completed {i} steps for LOF out of {len(new_data_table.index)}.')
             outlier_factor.append(self.local_outlier_factor_instance(i, k))
         if data_table.get('lof') is None:
             data_outlier_probs = pd.DataFrame(
