@@ -40,17 +40,20 @@ class NumericalAbstraction:
         window = str(window_size) + 's'
         # Compute the values and return the result.
         if aggregation_function == 'mean':
+            #IMPORTANT TO CHANGE WINDOW_SIZE FROM WINDOW AS THIS WILL RESULT IN AN ERROR, THERE IS AN ERROR IN THE TEMPORALABSTRACTION CODE
             return data.rolling(window_size, min_periods=window_size).mean()
         elif aggregation_function == 'max':
-            return data.rolling(window, min_periods=window_size).max()
+            return data.rolling(window_size, min_periods=window_size).max()
         elif aggregation_function == 'min':
-            return data.rolling(window, min_periods=window_size).min()
+            return data.rolling(window_size, min_periods=window_size).min()
         elif aggregation_function == 'median':
-            return data.rolling(window, min_periods=window_size).median()
+            return data.rolling(window_size, min_periods=window_size).median()
         elif aggregation_function == 'std':
-            return data.rolling(window, min_periods=window_size).std()
+            return data.rolling(window_size, min_periods=window_size).std()
         elif aggregation_function == 'slope':
-            return data.rolling(window, min_periods=window_size).apply(self.get_slope)
+            return data.rolling(window_size, min_periods=window_size).apply(self.get_slope)
+        elif aggregation_function == 'variance':
+            return data.rolling(window_size, min_periods=window_size).var()  # Add variance calculation here
         
         #TODO: add your own aggregation function here
         else:

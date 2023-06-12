@@ -7,58 +7,39 @@ import re
 from Chapter4.FrequencyAbstraction import FourierTransformation
 from Chapter4.TemporalAbstraction import NumericalAbstraction
 
-# Sample frequency (Hz)
-# fs = 10
+
 
 df = pd.read_csv("Python3Code\phyphox-outputs\chapter2_result_250_labeled_aligned_min_extended_onehot_outlier.csv", skipinitialspace=True)
-print(df.columns)
 
-numAbs = NumericalAbstraction()
+############################################# TEMPORAL ABSTRACTION ##########################################################
 
-meanDT = numAbs.abstract_numerical(df, ['acc_x'], 2, 'mean')
+# numAbs = NumericalAbstraction()
 
-print(meanDT)
+# # Specify the values needed for the abstraction, window size, the fuction to use and the columns to aggregate
+# windowSize = 10
+# func = 'slope'
+# cols = ['acc_x', 'acc_y', 'acc_z']
 
+# # Perform abstraction to get abstracted data
+# df_abs = numAbs.abstract_numerical(df, cols, windowSize, func)
 
+# #Funtion which plots the specified column along with the abstracted column - make sure to use this function only when there is an abstracted column
+# def plotAbstraction(df_abs, columns, window, func):
+#     for col in columns:
+#         plt.figure(figsize=(10, 6))
+#         plt.plot(df.index, df_abs[col], label=col, color='blue')
+#         plt.plot(df.index, df_abs[col + '_temp_' + func + '_ws_' + str(window) ], label = col + ' ' + func, color='red')
 
+#         plt.xlabel('Index')
+#         plt.ylabel(col)
+#         plt.title('Differences between ' + col + ' and its Rolling '  + func)
+#         plt.legend()
+#         plt.show()
 
+# # Plot values
+# plotAbstraction(df_abs, cols, windowSize, func)
 
+############################################# FREQUENCY ABSTRACTION ##########################################################
 
-
-
-
-
-
-
-
-
-# FreqAbs = FourierTransformation()
-# data_table = FreqAbs.abstract_frequency(copy.deepcopy(df), ['acc_x', 'acc_y', 'acc_z'], 160, fs)
-# print(data_table.columns)
-
-
-
-
-
-# # Get the frequencies from the columns....
-# frequencies = []
-# values = []
-
-# # Extracting the frequencies from columns obtained 
-# for col in data_table.columns:
-#     val = re.findall(r'freq_\d+\.\d+_Hz', col)
-#     print(val)
-#     if len(val) > 0:
-#         frequency = float((val[0])[5:len(val)-4])
-#         frequencies.append(frequency)
-#         values.append(data_table.loc[data_table.index, col])
-
-# fig = plt.figure()
-# ax1 = fig.add_subplot(111)
-# plt.xlim([0, 5])
-# ax1.plot(frequencies, values, 'b+')
-# ax1.set_xlabel('Frequency (Hz)')
-# ax1.set_ylabel('$a$')
-# plt.show()
-
-
+# Sample frequency (Hz)
+# fs = 10
