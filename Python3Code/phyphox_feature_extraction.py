@@ -102,7 +102,7 @@ windowSize = 120
 cols = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'lin_acc_x','lin_acc_y','lin_acc_z','loc_speed', 'loc_horizontal_accuracy', 'loc_vertical_accuracy' , 'mang_field_x', 'mang_field_y' , 'mang_field_z', 'pca_1', 'pca_2', 'pca_3']
 # cols = ['acc_x', 'gyr_x', 'lin_acc_x', 'loc_speed', 'mang_field_x']
 
-df = pd.read_csv("Python3Code\phyphox-outputs\lowpass_extended_results_pca.csv", skipinitialspace=True)
+df = pd.read_csv("Python3Code\phyphox-outputs\lowpass_extended_testing_results_pca.csv", skipinitialspace=True)
 
 ############################################# TEMPORAL ABSTRACTION ##########################################################
 
@@ -207,7 +207,7 @@ df_freq = FreqAbs.abstract_frequency(copy.deepcopy(df), cols, windowSize, fs)
 
 df_freq = windowOverlap(df_freq, windowSize)
 
-file = Path('./Python3Code/frequency-feature-data/features_dataset_ws120_fs160_overlap0.9.csv')
+file = Path('./Python3Code/frequency-feature-data/features_dataset_testing_ws120_fs160_overlap0.9.csv')
 file.parent.mkdir(parents=True, exist_ok=True)  
 df_freq.to_csv(file)
 
