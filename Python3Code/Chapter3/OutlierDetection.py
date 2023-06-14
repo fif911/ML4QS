@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import copy
 
-from Python3Code.util import util
+from util import util
 
 
 # Class for outlier detection algorithms based on some distribution of the data. They
