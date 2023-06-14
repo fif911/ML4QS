@@ -51,7 +51,7 @@ class VisualizeDataset:
 
         f.subplots_adjust(hspace=0.4)
 
-        xfmt = md.DateFormatter('%H:%M')
+        xfmt = md.DateFormatter('%H:%M:%S')
 
         # Pass through the columns specified.
         for i in range(0, len(columns)):
