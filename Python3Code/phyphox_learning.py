@@ -30,15 +30,15 @@ from util import util
 from util.VisualizeDataset import VisualizeDataset
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
-DATA_PATH = Path('./phyphox-outputs/')
+DATA_PATH = Path('./frequency-feature-data/')
 
 # name of dataset for training data
 # TODO add all features
-DATASET_FNAME = 'lowpass_extended_results_pca.csv'
+DATASET_FNAME = 'features_dataset_ws120_fs160_overlap0.9.csv'
 
 # name of dataset for testing data
 # TODO add all features
-DATASET_TEST_FNAME = 'lowpass_testing_results.csv'
+DATASET_TEST_FNAME = 'features_dataset_testing_ws120_fs160_overlap0.9.csv'
 
 RESULT_FNAME = 'chapter7_classification_result.csv'
 EXPORT_TREE_PATH = Path('./figures/crowdsignals_ch7_classification/')
@@ -57,6 +57,7 @@ DataViz = VisualizeDataset(__file__)
 # cases where we do not know the label.
 dataset['class'] = dataset['label']
 del dataset['label']
+dataset = dataset.dropna()
 
 features = [dataset.columns.get_loc(x) for x in dataset.columns if ('label' not in x) and ('class' not in x)]
 class_label_indices = [dataset.columns.get_loc(x) for x in dataset.columns if ('class' in x)]
@@ -66,6 +67,7 @@ train_y = dataset.iloc[:, class_label_indices]
 
 test_dataset['class'] = test_dataset['label']
 del test_dataset['label']
+test_dataset = test_dataset.dropna()
 features = [test_dataset.columns.get_loc(x) for x in test_dataset.columns if ('label' not in x) and ('class' not in x)]
 class_label_indices = [test_dataset.columns.get_loc(x) for x in test_dataset.columns if ('class' in x)]
 
@@ -80,8 +82,7 @@ print('Test set length is: ', len(test_X.index))
 basic_features = ['acc_x', 'acc_y', 'acc_z', 'lin_acc_x', 'lin_acc_y', 'lin_acc_z', 'loc_speed', 'gyr_x', 'gyr_y',
                   'gyr_z', 'loc_horizontal_accuracy', 'loc_vertical_accuracy', 'mang_field_x', 'mang_field_y',
                   'mang_field_z']
-# pca_features = ['pca_1','pca_2','pca_3']
-pca_features = []
+pca_features = ['pca_1','pca_2','pca_3']
 time_features = [name for name in dataset.columns if '_temp_' in name]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
 print('#basic features: ', len(basic_features))
@@ -96,7 +97,10 @@ features_after_chapter_5 = list(set().union(basic_features, pca_features, time_f
 
 fs = FeatureSelectionClassification()
 # Next, we declare the parameters we'll use in the algorithms.
-N_FORWARD_SELECTION = 15
+N_FORWARD_SELECTION = len(features_after_chapter_5)
+# N_FORWARD_SELECTION = 50
+
+print(N_FORWARD_SELECTION)
 
 features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
                                                                   train_X[features_after_chapter_5],
@@ -107,17 +111,19 @@ features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELE
 _dataset = pd.DataFrame()
 _dataset['features'] = np.array(ordered_features)
 _dataset['scores'] = np.array(ordered_scores)
+
+print(_dataset.sort_values('scores'))
+
+_dataset.to_csv("phyphox-outputs/feature_selection.csv")
+
 DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION + 1)], y=[ordered_scores],
                 xlabel='number of features', ylabel='accuracy')
 
 exit(0)
-# based on python2 features, slightly different. 
-selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120',
-                     'gyr_phone_x_temp_std_ws_120',
-                     'mag_watch_y_pse', 'mag_phone_z_max_freq', 'gyr_watch_y_freq_weighted',
-                     'gyr_phone_y_freq_1.0_Hz_ws_40',
-                     'acc_phone_x_freq_1.9_Hz_ws_40', 'mag_watch_z_freq_0.9_Hz_ws_40', 'acc_watch_y_freq_0.5_Hz_ws_40']
 
+selected_features = ['lin_acc_x', 'gyr_x',
+                     'gyr_y',
+                     'mang_field_y', 'gyr_z']
 # # # Let us first study the impact of regularization and model complexity: does regularization prevent overfitting?
 
 learner = ClassificationAlgorithms()
