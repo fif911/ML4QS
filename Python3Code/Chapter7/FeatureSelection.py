@@ -183,7 +183,11 @@ class FeatureSelectionRegression:
 
         # Compute the absolute correlations per column.
         for i in range(0, len(X_train.columns)):
-            corr, p = pearsonr(X_train[X_train.columns[i]], y_train)
+            raw_corr, p = pearsonr(X_train[X_train.columns[i]], y_train)
+            if isinstance(raw_corr, float):
+                corr = raw_corr
+            else:
+                corr = raw_corr.shape[0]
             correlations.append(abs(corr))
             if np.isfinite(corr):
                 full_columns_and_corr.append((X_train.columns[i], corr))
