@@ -42,7 +42,8 @@ class ClassificationAlgorithms:
             # With the current parameters for max_iter and Python 3 packages convergence is not always reached, therefore increased +1000.
             tuned_parameters = [{'hidden_layer_sizes': [(5,), (10,), (25,), (100,), (100,5,), (100,10,),], 'activation': [activation],
                                  'learning_rate': [learning_rate], 'max_iter': [2000, 3000], 'alpha': [alpha]}]
-            nn = GridSearchCV(MLPClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            nn = GridSearchCV(MLPClassifier(), tuned_parameters, cv=3,n_jobs=-1 , scoring='accuracy')
+            return nn.get_params()
         else:
             # Create the model
             nn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, max_iter=max_iter, learning_rate=learning_rate, alpha=alpha, random_state=42)
@@ -78,6 +79,7 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
                          'C': [1, 10, 100]}]
             svm = GridSearchCV(SVC(probability=True), tuned_parameters, cv=5, scoring='accuracy')
+            return svm.get_params()
         else:
             svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True, cache_size=7000)
 
@@ -111,6 +113,7 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'max_iter': [1000, 2000], 'tol': [1e-3, 1e-4],
                          'C': [1, 10, 100]}]
             svm = GridSearchCV(LinearSVC(), tuned_parameters, cv=5, scoring='accuracy')
+            return svm.get_params()
         else:
             svm = LinearSVC(C=C, tol=tol, max_iter=max_iter)
 
@@ -148,6 +151,7 @@ class ClassificationAlgorithms:
         if gridsearch:
             tuned_parameters = [{'n_neighbors': [1, 2, 5, 10]}]
             knn = GridSearchCV(KNeighborsClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            return knn.get_params()
         else:
             knn = KNeighborsClassifier(n_neighbors=n_neighbors)
 
@@ -183,6 +187,7 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                  'criterion':['gini', 'entropy']}]
             dtree = GridSearchCV(DecisionTreeClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            return (dtree.get_params())
         else:
             dtree = DecisionTreeClassifier(min_samples_leaf=min_samples_leaf, criterion=criterion)
 
@@ -252,7 +257,8 @@ class ClassificationAlgorithms:
             tuned_parameters = [{'min_samples_leaf': [2, 10, 50, 100, 200],
                                  'n_estimators':[10, 50, 100],
                                  'criterion':['gini', 'entropy']}]
-            rf = GridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, scoring='accuracy')
+            rf = GridSearchCV(RandomForestClassifier(), tuned_parameters, cv=5, n_jobs=-1, scoring='accuracy')
+            return rf.get_params()
         else:
             rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf, criterion=criterion)
 
