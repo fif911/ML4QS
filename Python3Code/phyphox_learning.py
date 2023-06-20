@@ -60,7 +60,8 @@ del dataset['label']
 # dataset.index = dataset['time']
 dataset = dataset.dropna()
 
-features = [dataset.columns.get_loc(x) for x in dataset.columns if ('label' not in x) and ('class' not in x) and ('time' not in x)]
+features = [dataset.columns.get_loc(x) for x in dataset.columns if
+            ('label' not in x) and ('class' not in x) and ('time' not in x)]
 class_label_indices = [dataset.columns.get_loc(x) for x in dataset.columns if ('class' in x)]
 
 train_X = dataset.iloc[:, features]
@@ -70,7 +71,8 @@ test_dataset['class'] = test_dataset['label']
 del test_dataset['label']
 # test_dataset.index = test_dataset['time']
 test_dataset = test_dataset.dropna()
-features = [test_dataset.columns.get_loc(x) for x in test_dataset.columns if ('label' not in x) and ('class' not in x) and ('time' not in x)]
+features = [test_dataset.columns.get_loc(x) for x in test_dataset.columns if
+            ('label' not in x) and ('class' not in x) and ('time' not in x)]
 class_label_indices = [test_dataset.columns.get_loc(x) for x in test_dataset.columns if ('class' in x)]
 
 test_X = test_dataset.iloc[:, features]
@@ -84,7 +86,7 @@ print('Test set length is: ', len(test_X.index))
 basic_features = ['acc_x', 'acc_y', 'acc_z', 'lin_acc_x', 'lin_acc_y', 'lin_acc_z', 'loc_speed', 'gyr_x', 'gyr_y',
                   'gyr_z', 'loc_horizontal_accuracy', 'loc_vertical_accuracy', 'mang_field_x', 'mang_field_y',
                   'mang_field_z']
-pca_features = ['pca_1','pca_2','pca_3']
+pca_features = ['pca_1', 'pca_2', 'pca_3']
 time_features = [name for name in dataset.columns if '_temp_' in name]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
 print('#basic features: ', len(basic_features))
@@ -141,17 +143,44 @@ N_FORWARD_SELECTION = 50
 
 #  -----------------------------------------------------
 
+reduced_features = ["lin_acc_x", "loc_speed"]
+selected_features = ['lin_acc_x_temp_std_ws_120', 'lin_acc_y_temp_std_ws_120', 'lin_acc_z_temp_std_ws_120',
+                     "gyr_x_temp_std_ws_120",
+                     "lin_acc_x_max_freq", 'loc_speed']
 
-selected_features = ['acc_y_freq_58.667_Hz_ws_120', 'acc_z_freq_49.333_Hz_ws_120',
-                     'gyr_x_freq_16.0_Hz_ws_120',
-                     'lin_acc_x_freq_53.333_Hz_ws_120', 'gyr_y_freq_57.333_Hz_ws_120']
+"""
+acc_x_temp_std_ws_120,
+acc_y_temp_std_ws_120,
+acc_z_temp_std_ws_120
+,gyr_x_temp_std_ws_120
+,gyr_y_temp_std_ws_120,
+gyr_z_temp_std_ws_120,
+lin_acc_x_temp_std_ws_120,
+lin_acc_y_temp_std_ws_120,
+lin_acc_z_temp_std_ws_120,
+loc_speed_temp_std_ws_120,
+loc_horizontal_accuracy_temp_std_ws_120,
+loc_vertical_accuracy_temp_std_ws_120,
+mang_field_x_temp_std_ws_120,
+mang_field_y_temp_std_ws_120,
+mang_field_z_temp_std_ws_120,
+pca_1_temp_std_ws_120,
+pca_2_temp_std_ws_120,
+pca_3_temp_std_ws_120,acc_x_max_freq
+"""
 
-features = [selected_features, features_after_chapter_5]
-feature_names = ['selected_features', 'features_after_chapter_5']
+# Drop PCA and accuracy columns
+all_reduced_features = [col for col in features_after_chapter_5 if 'pca' not in col]
+all_reduced_features = [col for col in all_reduced_features if 'accuracy' not in col]
+print(
+    f"Reduced number of features after chapter 5 (some dropped): {len(all_reduced_features)}/{len(features_after_chapter_5)}")
+
+features = [basic_features, reduced_features, selected_features, all_reduced_features, features_after_chapter_5]
+feature_names = ['basic_features', "basic_reduced_features", 'selected features', "all_reduced_features",
+                 "all_features"]
 
 learner = ClassificationAlgorithms()
 eval = ClassificationEvaluation()
-start = time.time()
 
 # ---------------------------- TUNING PARAMETERS ----------------------------------------
 # by setting gridsearch to true, the optimal parameters are returned (i changed the original code to return them)
@@ -182,252 +211,193 @@ start = time.time()
 
 # print(params)
 
+SKIP_COMPARING = False
+if not SKIP_COMPARING:
+    #  ---------------------------- COMPARING LEARNING ALGORITHMS ----------------------------
+    N_KCV_REPEATS = 5
+    scores_over_all_algs = []
 
-#  ---------------------------- COMPARING LEARNING ALGORITHMS ----------------------------
-N_KCV_REPEATS = 5
-scores_over_all_algs = []
+    for j, feature_set in enumerate(features):
+        performance_tr_dt = 0
+        performance_te_dt = 0
+        performance_tr_nn = 0
+        performance_te_nn = 0
+        performance_tr_rf = 0
+        performance_te_rf = 0
+        performance_tr_sv = 0
+        performance_te_sv = 0
+        performance_tr_so = 0
+        performance_te_so = 0
+        # performance_tr_kn = 0
+        # performance_te_kn = 0
+        performance_tr_nb = 0
+        performance_te_nb = 0
 
-for j, feature_set in enumerate(features):
-    performance_tr_dt = 0
-    performance_te_dt = 0
-    performance_tr_nn = 0
-    performance_te_nn = 0
-    performance_tr_rf = 0
-    performance_te_rf = 0
-    performance_tr_sv = 0
-    performance_te_sv = 0
-    performance_tr_so = 0
-    performance_te_so = 0
-    performance_tr_kn = 0
-    performance_te_kn = 0
-    performance_tr_nb = 0
-    performance_te_nb = 0
+        for i in range(N_KCV_REPEATS):
+            print('perfoming neural network', i)
+            # not enough features if we only take the selected (does not converge)
+            class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
+                train_X[feature_set], train_y, test_X[feature_set],
+                gridsearch=False,
+                hidden_layer_sizes=(100,),
+                activation='logistic',
+                learning_rate='adaptive',
+                max_iter=2000,
+                alpha=0.0001
+            )
+            performance_tr_nn += eval.accuracy(train_y, class_train_y)
+            performance_te_nn += eval.accuracy(test_y, class_test_y)
 
-    for i in range(N_KCV_REPEATS):
-        print('perfoming neural network', i)
-        # not enough features if we only take the selected (does not converge)
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
-                    train_X[feature_set], train_y, test_X[feature_set], 
-                    gridsearch=False,
-                    hidden_layer_sizes=(100,),
-                    activation='logistic',
-                    learning_rate='adaptive',
-                    max_iter=2000,
-                    alpha=0.0001
-                )
-        performance_tr_nn += eval.accuracy(train_y, class_train_y)
-        performance_te_nn += eval.accuracy(test_y, class_test_y)
+            print('perfoming random forest')
+            class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
+                train_X[feature_set], train_y, test_X[feature_set],
+                gridsearch=False,
+                min_samples_leaf=2,
+                n_estimators=100,
+                criterion='gini'
+            )
+            performance_tr_rf += eval.accuracy(train_y, class_train_y)
+            performance_te_rf += eval.accuracy(test_y, class_test_y)
 
-        print('perfoming random forest')
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
-                    train_X[feature_set], train_y, test_X[feature_set], 
-                    gridsearch=False,
-                    min_samples_leaf=2,
-                    n_estimators=100,
-                    criterion='gini'
-                )
-        performance_tr_rf += eval.accuracy(train_y, class_train_y)
-        performance_te_rf += eval.accuracy(test_y, class_test_y)
+            print('performing support vector machine with kernel')
+            class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_with_kernel(
+                train_X[feature_set], train_y, test_X[feature_set],
+                gridsearch=False,
+                kernel='rbf',
+                gamma='scale',  # not sure about this one
+                C=1.0
+            )
 
+            performance_tr_sv += eval.accuracy(train_y, class_train_y)
+            performance_te_sv += eval.accuracy(test_y, class_test_y)
 
-        print('performing support vector machine with kernel')
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_with_kernel(
-                    train_X[feature_set], train_y, test_X[feature_set], 
-                    gridsearch=False,
-                    kernel='rbf',
-                    gamma='scale', # not sure about this one
-                    C=1.0
-                )
+            print('performing support vector machine without kernel')
+            class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_without_kernel(
+                train_X[feature_set], train_y, test_X[feature_set],  # does not converge with selected features
+                gridsearch=False,
+                max_iter=1000,
+                tol=0.0001,
+                C=1.0
+            )
+            performance_tr_so += eval.accuracy(train_y, class_train_y)
+            performance_te_so += eval.accuracy(test_y, class_test_y)
 
-        performance_tr_sv += eval.accuracy(train_y, class_train_y)
-        performance_te_sv += eval.accuracy(test_y, class_test_y)
-
-        print('performing support vector machine without kernel')
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_without_kernel(
-                    train_X[feature_set], train_y, test_X[feature_set], # does not converge with selected features 
-                    gridsearch=False,
-                    max_iter=1000,
-                    tol=0.0001,
-                    C=1.0
-                )
-        performance_tr_so += eval.accuracy(train_y, class_train_y)
-        performance_te_so += eval.accuracy(test_y, class_test_y)
-
-    print('perfoming decision tree', i)
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
+        print('perfoming decision tree')
+        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
             train_X[feature_set], train_y, test_X[feature_set],
-            gridsearch=False, 
+            gridsearch=False,
             criterion='gini',  # best parameter according to grid search
             min_samples_leaf=2
-            )
-    performance_tr_dt += eval.accuracy(train_y, class_train_y)
-    performance_te_dt += eval.accuracy(test_y, class_test_y)
-
-    print('performing k nearest neighbors')
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.k_nearest_neighbor(
-            train_X[feature_set], train_y, test_X[feature_set], 
-            gridsearch=False,
-            n_neighbors=5,
         )
-    performance_tr_kn += eval.accuracy(train_y, class_train_y)
-    performance_te_kn += eval.accuracy(test_y, class_test_y)
+        performance_tr_dt += eval.accuracy(train_y, class_train_y)
+        performance_te_dt += eval.accuracy(test_y, class_test_y)
 
-    print('performing naive bayes')
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.naive_bayes(
+        # print('performing k nearest neighbors')
+        # class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.k_nearest_neighbor(
+        #         train_X[feature_set], train_y, test_X[feature_set],
+        #         gridsearch=True,
+        #         # n_neighbors=5,
+        #     )
+        # performance_tr_kn += eval.accuracy(train_y, class_train_y)
+        # performance_te_kn += eval.accuracy(test_y, class_test_y)
+
+        print('performing naive bayes')
+        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.naive_bayes(
             train_X[feature_set], train_y, test_X[feature_set],
         )
-    performance_tr_nb += eval.accuracy(train_y, class_train_y)
-    performance_te_nb += eval.accuracy(test_y, class_test_y)
+        performance_tr_nb += eval.accuracy(train_y, class_train_y)
+        performance_te_nb += eval.accuracy(test_y, class_test_y)
 
-    scores_with_sd = util.print_table_row_performances(feature_names[j], len(train_X[feature_set].index),
-                                                        len(test_X[feature_set].index), [
-                                                            (performance_tr_nn / N_KCV_REPEATS, performance_te_nn / N_KCV_REPEATS),
-                                                            (performance_tr_rf / N_KCV_REPEATS, performance_te_rf / N_KCV_REPEATS),
-                                                            (performance_tr_sv / N_KCV_REPEATS, performance_te_sv / N_KCV_REPEATS),
-                                                            (performance_tr_so / N_KCV_REPEATS, performance_te_so / N_KCV_REPEATS),
-                                                            (performance_tr_kn , performance_te_kn  ),
-                                                            (performance_tr_dt , performance_te_dt ),
-                                                            (performance_tr_nb , performance_te_nb )])
-    
-    scores_over_all_algs.append(scores_with_sd)
+        scores_with_sd = util.print_table_row_performances(feature_names[j], len(train_X[feature_set].index),
+                                                           len(test_X[feature_set].index), [
+                                                               (performance_tr_nn / N_KCV_REPEATS,
+                                                                performance_te_nn / N_KCV_REPEATS),
+                                                               (performance_tr_rf / N_KCV_REPEATS,
+                                                                performance_te_rf / N_KCV_REPEATS),
+                                                               (performance_tr_sv / N_KCV_REPEATS,
+                                                                performance_te_sv / N_KCV_REPEATS),
+                                                               (performance_tr_so / N_KCV_REPEATS,
+                                                                performance_te_so / N_KCV_REPEATS),
+                                                               # (performance_tr_kn , performance_te_kn  ),
+                                                               (performance_tr_dt, performance_te_dt),
+                                                               (performance_tr_nb, performance_te_nb)])
 
-DataViz.plot_performances_classification(['NN', 'RF', 'SVMK', 'SVM', 'KNN', 'DT', 'NB'], feature_names, scores_over_all_algs)
+        scores_over_all_algs.append(scores_with_sd)
+
+    # DataViz.plot_performances_classification(['NN', 'RF', 'SVMK', 'SVM', 'KNN', 'DT', 'NB'], feature_names, scores_over_all_algs)
+    DataViz.plot_performances_classification(['NN', 'RF', 'SVMK', 'SVM', 'DT', 'NB'], feature_names,
+                                             scores_over_all_algs,
+                                             lower_bound=0)
 
 
-exit(0)
+############### Study algorithms in detail
+# We study NN for selected features and NB for basic_reduced_features
 
+# NN for basic_reduced_features
 
-# ------------------------- K NEAREST NEIGHBORS ---------------------------------
-# k_neighbors = [1, 2, 5, 10]
-# performance_training = []
-# performance_test = []
-# N_REPEATS_NN = 3
-# for k_neighbor in k_neighbors:
-#     performance_tr = 0
-#     performance_te = 0
-#     for i in range(0, N_REPEATS_NN):
-#         print('performing k neihbors with ', k_neighbor, 'neighbors and repetion:', i+1, 'out of', N_REPEATS_NN)
-#         class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.k_nearest_neighbor(
-#             train_X, train_y,
-#             test_X, n_neighbors=k_neighbor,
-#             gridsearch=False
-#         )
-
-#         performance_tr += eval.accuracy(train_y, class_train_y)
-#         performance_te += eval.accuracy(test_y, class_test_y)
-
-#     performance_training.append(performance_tr / N_REPEATS_NN)
-#     performance_test.append(performance_te / N_REPEATS_NN)
-
-# DataViz.plot_xy(x=[k_neighbors, k_neighbors], y=[performance_training, performance_test],
-#                 xlabel='k neibhor value', ylabel='accuracy', 
-#                 names=['training', 'test'], line_styles=['r-', 'b:'])
-
-exit(0)
-
-possible_feature_sets = [basic_features, features_after_chapter_3, features_after_chapter_4, features_after_chapter_5,
-                         selected_features]
-feature_names = ['initial set', 'Chapter 3', 'Chapter 4', 'Chapter 5', 'Selected features']
-N_KCV_REPEATS = 5
-
-print('Preprocessing took', time.time() - start, 'seconds.')
-
-scores_over_all_algs = []
-
-for i in range(0, len(possible_feature_sets)):
-    selected_train_X = train_X[possible_feature_sets[i]]
-    selected_test_X = test_X[possible_feature_sets[i]]
-
-    # First we run our non deterministic classifiers a number of times to average their score.
-
-    performance_tr_nn = 0
-    performance_tr_rf = 0
-    performance_tr_svm = 0
-    performance_te_nn = 0
-    performance_te_rf = 0
-    performance_te_svm = 0
-
-    for repeat in range(0, N_KCV_REPEATS):
-        print("Training NeuralNetwork run {} / {} ... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
-            selected_train_X, train_y, selected_test_X, gridsearch=True
-        )
-        print("Training RandomForest run {} / {} ... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
-        performance_tr_nn += eval.accuracy(train_y, class_train_y)
-        performance_te_nn += eval.accuracy(test_y, class_test_y)
-
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
-            selected_train_X, train_y, selected_test_X, gridsearch=True
-        )
-
-        performance_tr_rf += eval.accuracy(train_y, class_train_y)
-        performance_te_rf += eval.accuracy(test_y, class_test_y)
-
-        print("Training SVM run {} / {}, featureset: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
-
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_with_kernel(
-            selected_train_X, train_y, selected_test_X, gridsearch=True
-        )
-        performance_tr_svm += eval.accuracy(train_y, class_train_y)
-        performance_te_svm += eval.accuracy(test_y, class_test_y)
-
-    overall_performance_tr_nn = performance_tr_nn / N_KCV_REPEATS
-    overall_performance_te_nn = performance_te_nn / N_KCV_REPEATS
-    overall_performance_tr_rf = performance_tr_rf / N_KCV_REPEATS
-    overall_performance_te_rf = performance_te_rf / N_KCV_REPEATS
-    overall_performance_tr_svm = performance_tr_svm / N_KCV_REPEATS
-    overall_performance_te_svm = performance_te_svm / N_KCV_REPEATS
-
-    #     #And we run our deterministic classifiers:
-    print("Determenistic Classifiers:")
-
-    print("Training Nearest Neighbor run 1 / 1, featureset {}:".format(feature_names[i]))
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.k_nearest_neighbor(
-        selected_train_X, train_y, selected_test_X, gridsearch=True
-    )
-    performance_tr_knn = eval.accuracy(train_y, class_train_y)
-    performance_te_knn = eval.accuracy(test_y, class_test_y)
-    print("Training Descision Tree run 1 / 1  featureset {}:".format(feature_names[i]))
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
-        selected_train_X, train_y, selected_test_X, gridsearch=True
+learners = {}
+# selected_features = ['lin_acc_x_temp_std_ws_120', "gyr_x_temp_std_ws_120", "lin_acc_x_max_freq", 'loc_speed']
+#
+# # 0.925
+# learners["conf1"] = {'activation': 'tanh', 'alpha': 0.0001, 'hidden_layer_sizes': (5,), 'learning_rate': 'adaptive', 'max_iter': 1500}
+# learners["conf2"] = {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (100,10, 10), 'learning_rate': 'adaptive', 'max_iter': 3000}
+learners["NN selected features conf1"] = {"hidden_layer_sizes": (100,),
+                                          "activation": 'logistic',
+                                          "learning_rate": 'adaptive',
+                                          "max_iter": 3000,
+                                          "alpha": 0.0001}
+# learners["NN selected features conf2"] = {"hidden_layer_sizes": (100),
+#                                           "activation": 'logistic',
+#                                           "learning_rate": 'adaptive',
+#                                           "max_iter": 4000,
+#                                           "alpha": 0.0001}
+#
+for name, settings in learners.items():
+    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
+        train_X[selected_features], train_y, test_X[selected_features],
+        # gridsearch=True,
+        print_model_details=True,
+        **settings
     )
 
-    performance_tr_dt = eval.accuracy(train_y, class_train_y)
-    performance_te_dt = eval.accuracy(test_y, class_test_y)
-    print("Training Naive Bayes run 1/1 featureset {}:".format(feature_names[i]))
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.naive_bayes(
-        selected_train_X, train_y, selected_test_X
-    )
+    test_cm = eval.confusion_matrix(test_y, class_test_y, class_train_prob_y.columns)
+    print(f"Accuracy for {name}: {eval.accuracy(test_y, class_test_y)}")
 
-    performance_tr_nb = eval.accuracy(train_y, class_train_y)
-    performance_te_nb = eval.accuracy(test_y, class_test_y)
+    DataViz.plot_confusion_matrix(test_cm, class_train_prob_y.columns, normalize=False,
+                                  title=f"Confusion matrix: {name}")
 
-    scores_with_sd = util.print_table_row_performances(feature_names[i], len(selected_train_X.index),
-                                                       len(selected_test_X.index), [
-                                                           (overall_performance_tr_nn, overall_performance_te_nn),
-                                                           (overall_performance_tr_rf, overall_performance_te_rf),
-                                                           (overall_performance_tr_svm, overall_performance_te_svm),
-                                                           (performance_tr_knn, performance_te_knn),
-                                                           (performance_tr_dt, performance_te_dt),
-                                                           (performance_tr_nb, performance_te_nb)])
-    scores_over_all_algs.append(scores_with_sd)
 
-DataViz.plot_performances_classification(['NN', 'RF', 'SVM', 'KNN', 'DT', 'NB'], feature_names, scores_over_all_algs)
 
-# # And we study two promising ones in more detail. First, let us consider the decision tree, which works best with the
-# # selected features.
+#################### Plot actual label and predicted label ####################
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 
-class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(train_X[selected_features],
-                                                                                           train_y,
-                                                                                           test_X[selected_features],
-                                                                                           gridsearch=True,
-                                                                                           print_model_details=True,
-                                                                                           export_tree_path=EXPORT_TREE_PATH)
+pred_label = pd.DataFrame(class_test_y, columns=['pred_label'])
+pred_label.index = test_y.index
+dataset = pd.concat([test_y, pred_label], axis=1)
 
-class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
-    train_X[selected_features], train_y, test_X[selected_features],
-    gridsearch=True, print_model_details=True)
+cl0 = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [0])])
+cl1 = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [1])])
 
-test_cm = eval.confusion_matrix(test_y, class_test_y, class_train_prob_y.columns)
+labels = cl0.fit_transform(dataset).toarray()
+dataset['label_cycling'] = labels[:, 0]
+dataset['label_hammocking'] = labels[:, 1]
+dataset['label_running'] = labels[:, 2]
+dataset['label_sitting'] = labels[:, 3]
+dataset['label_walking'] = labels[:, 4]
 
-DataViz.plot_confusion_matrix(test_cm, class_train_prob_y.columns, normalize=False)
+labels = cl1.fit_transform(dataset).toarray()
+dataset['pred_cycling'] = labels[:, 0]
+dataset['pred_hammocking'] = labels[:, 1]
+dataset['pred_running'] = labels[:, 2]
+dataset['pred_sitting'] = labels[:, 3]
+dataset['pred_walking'] = labels[:, 4]
+
+del dataset['class']
+del dataset['pred_label']
+
+DataViz.plot_dataset(dataset,
+                     ['label_', 'pred_'],
+                     ['like', 'like'],
+                     ['points', 'points']
+                     )

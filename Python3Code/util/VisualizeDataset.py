@@ -301,13 +301,13 @@ class VisualizeDataset:
 
     # Plot the confusion matrix that has been derived in the evaluation metrics. Classes expresses the labels
     # for the matrix. We can normalize or show the raw counts. Of course this applies to classification problems.
-    def plot_confusion_matrix(self, cm, classes, normalize=False):
+    def plot_confusion_matrix(self, cm, classes, normalize=False, title='Confusion matrix'):
         # Taken from http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 
         # Select the colormap.
         cmap = plt.cm.Blues
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
-        plt.title('confusion matrix')
+        plt.title(title)
         plt.colorbar()
         tick_marks = np.arange(len(classes))
         plt.xticks(tick_marks, classes, rotation=45)
@@ -422,8 +422,8 @@ class VisualizeDataset:
         self.save(plt)
         plt.show()
 
-    def plot_performances_classification(self, algs, feature_subset_names, scores_over_all_algs):
-        self.plot_performances(algs, feature_subset_names, scores_over_all_algs, [0.70, 1.0], 2, 'Accuracy')
+    def plot_performances_classification(self, algs, feature_subset_names, scores_over_all_algs, lower_bound=0.7):
+        self.plot_performances(algs, feature_subset_names, scores_over_all_algs, [lower_bound, 1.0], 2, 'Accuracy')
 
     def plot_performances_regression(self, algs, feature_subset_names, scores_over_all_algs):
         self.plot_performances(algs, feature_subset_names, scores_over_all_algs, None, 1, 'Mean Squared Error')
