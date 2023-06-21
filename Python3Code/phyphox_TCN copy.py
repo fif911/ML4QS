@@ -7,6 +7,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import time
 
+import tensorflow as tf
 import keras
 from keras import Sequential
 from keras.layers import Dense
@@ -107,7 +108,7 @@ M_TRAIN = X_train.shape[0]           # number of training examples (2D)
 M_TEST = X_test.shape[0]             # number of test examples (2D),full=X_test.shape[0]
 N = X_train.shape[2]                 # number of features
 BATCH = M_TRAIN                      # batch size
-EPOCH = 1                           # number of epochs
+EPOCH = 50                       # number of epochs
 LR = 5e-2                            # learning rate of the gradient descent
 LAMBD = 3e-2                         # lambda in L2 regularizaion
 DP = 0.0                             # dropout rate
@@ -136,47 +137,48 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], X_test.shape[2]))
 # y_train = keras.utils.to_categorical(y_train, num_classes=5)
 # y_test = keras.utils.to_categorical(y_test, num_classes=5)
 
-# Define the TCN model
+# # Define the TCN model
 model = Sequential([
     TCN(input_shape=(T, N), nb_filters=256, return_sequences=True, dilations=[1, 2, 4, 8, 16, 32, 64, 128]),
     Dense(num_classes, activation='softmax')
 ])
 
 
-# Compile the model
+# # Compile the model
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy', 'categorical_accuracy'])
 
-# Train the model
-History = model.fit(X_train, y_train, epochs=EPOCH)
+# # Train the model
+# History = model.fit(X_train, y_train, epochs=EPOCH)
+History = model.fit(X_train, y_train, epochs=EPOCH, validation_data=(X_test, y_test))
 
-print("finished training")
+print(History.history)
 
-model.save('./model/tcm.keras')
+# model.save('./model/tcm.keras')
 
-# train_loss, train_acc = model.evaluate(X_train, y_train,
-#                                        batch_size=M_TRAIN, verbose=0)
+# model= tf.keras.models.load_model('./model/tcm.keras' , custom_objects={'TCN': TCN})
 
-# train_loss, train_acc, _ = model.evaluate(X_train, y_train, batch_size=M_TRAIN, verbose=0)
+train_loss, train_acc, _ = model.evaluate(X_train, y_train, batch_size=M_TRAIN, verbose=0)
 
-# test_loss, test_acc, _ = model.evaluate(X_test[:M_TEST], y_test[:M_TEST],
-#                                      batch_size=M_TEST, verbose=0)
-# print('-'*65)
-# print(f'train accuracy = {round(train_acc * 100, 4)}%')
-# print(f'test accuracy = {round(test_acc * 100, 4)}%')
-# print(f'test error = {round((1 - test_acc) * M_TEST)} out of {M_TEST} examples')
+test_loss, test_acc, _ = model.evaluate(X_test[:M_TEST], y_test[:M_TEST],
+                                     batch_size=M_TEST, verbose=0)
+print('-'*65)
+print(f'train accuracy = {round(train_acc * 100, 4)}%')
+print(f'test accuracy = {round(test_acc * 100, 4)}%')
+print(f'test error = {round((1 - test_acc) * M_TEST)} out of {M_TEST} examples')
 
-# Plot the loss and accuracy curves over epochs:
-# fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(18,6))
-# axs[0].plot(History.history['loss'], color='b', label='Training loss')
-# axs[0].plot(History.history['val_loss'], color='r', label='Validation loss')
-# axs[0].set_title("Loss curves")
-# axs[0].legend(loc='best', shadow=True)
-# axs[1].plot(History.history['accuracy'], color='b', label='Training accuracy')
-# axs[1].plot(History.history['val_accuracy'], color='r', label='Validation accuracy')
-# axs[1].set_title("Accuracy curves")
-# axs[1].legend(loc='best', shadow=True)
 
-# plt.show()
+# # Plot the loss and accuracy curves over epochs:
+fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(18,6))
+axs[0].plot(History.history['loss'], color='b', label='Training loss')
+axs[0].plot(History.history['val_loss'], color='r', label='Validation loss')
+axs[0].set_title("Loss curves")
+axs[0].legend(loc='best', shadow=True)
+axs[1].plot(History.history['accuracy'], color='b', label='Training accuracy')
+axs[1].plot(History.history['val_accuracy'], color='r', label='Validation accuracy')
+axs[1].set_title("Accuracy curves")
+axs[1].legend(loc='best', shadow=True)
+
+plt.show()
 
 
 
